@@ -1,0 +1,154 @@
+## JunOS Config
+## Merge
+## A bulk update template for; dual isp with automatic failover using rpm/ip-monitoring and forwarding-instances for application path selection
+security {
+    application-tracking {
+    first-update-interval 5;
+    session-update-interval 5;
+    }
+}
+services {
+    application-identification;
+    rpm {
+        probe {{isp1}} {
+            test {{isp1}}_test {
+                probe-type icmp-ping;
+                target address {{isp1_gw}};
+                probe-count 10;
+                probe-interval 10;
+                test-interval 10;
+                source-address {{isp1_int_ip}};
+                routing-instance {{isp1}};
+                thresholds {
+                    successive-loss 3;
+                    total-loss 5;
+                }
+                destination-interface {{isp1_int}};
+            }
+        }
+        probe {{isp2}} {
+            test isp2_test {
+                probe-type icmp-ping;
+                target address {{isp2_gw}};
+                probe-count 10;
+                probe-interval 10;
+                test-interval 10;
+                source-address {{isp2_int_ip}};
+                routing-instance {{isp2}};
+                thresholds {
+                    successive-loss 3;
+                    total-loss 5;
+                }
+                destination-interface {{isp2_int}};
+                next-hop {{isp2_gw}};
+            }
+        }
+    }
+    ip-monitoring {
+        policy {{isp1}}_ipm {
+            match {
+                rpm-probe {{isp1}};
+            }
+            then {
+                preferred-route {
+                    routing-instances {{isp1}}_routing_instance {
+                        route 0.0.0.0/0 {
+                            next-hop {{isp2_gw}};
+                        }
+                    }
+                }
+            }
+        }
+        policy isp2_ipm {
+            match {
+                rpm-probe {{isp2}};
+            }
+            then {
+                preferred-route {
+                    routing-instances {{isp2}}_routing_instance {
+                        route 0.0.0.0/0 {
+                            next-hop {{isp1_gw}};
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+routing-instances {
+    {{isp1}} {
+        instance-type forwarding;
+        routing-options {
+            static {
+                route 0.0.0.0/0 {
+                    next-hop {{isp1_gw}};
+                    preference 8;
+                }
+            }
+        }
+    }
+    {{isp2}} {
+        instance-type forwarding;
+        routing-options {
+            static {
+                route 0.0.0.0/0 {
+                    next-hop {{isp2_gw}};
+                    preference 8;
+                }
+            }
+        }
+    }
+}
+policy-options {
+    policy-statement route-leaks {
+        term {{isp1}} {
+            from {
+                instance {{isp1}};
+                route-filter 0.0.0.0/0 exact;
+            }
+            then accept;
+        }
+        term {{isp2}} {
+            from {
+                instance {{isp2}};
+                route-filter 0.0.0.0/0 exact;
+            }
+            then {
+                preference add 5;
+                accept;
+            }
+        }
+        term everything-else {          
+            then reject;
+        }
+    }
+}
+routing-options {
+    interface-routes {
+        rib-group inet global-rib;
+    }
+    rib-groups {
+        global-rib {
+            import-rib [ inet.0 {{isp1}}.inet.0 isp2.inet.0 ];
+        }
+    }
+    instance-import route-leaks;
+}
+interfaces {
+    {{isp1_int}} {
+    description "{{isp1}} WAN Connection";
+        unit 0 {
+            family inet {
+                address {{isp1_int_ip}}/{{isp1_int_cidr}};
+            }
+        }
+    }
+    {{isp2_int}} {
+    description "{{isp2}} WAN Connection";
+        unit 0 {
+            family inet {
+                address {{isp2_int_ip}}/{{isp2_int_cidr}};
+            }
+        }
+    }
+}
