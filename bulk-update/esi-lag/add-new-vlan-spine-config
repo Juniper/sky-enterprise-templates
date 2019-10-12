@@ -1,0 +1,7 @@
+set interfaces irb unit {{ VLAN_ID }} proxy-macip-advertisement
+set interfaces irb unit {{ VLAN_ID }} virtual-gateway-accept-data
+set interfaces irb unit {{ VLAN_ID }} description "** L3 interface for VLAN {{ VLAN_ID }} **”
+set interfaces irb unit {{ VLAN_ID }} family inet address {{ IRB_IP }}/24 virtual-gateway-address {{ IRB_VIP }}
+set vlans V{{ VLAN_ID }} vlan-id {{ VLAN_ID }}
+set vlans V{{ VLAN_ID }} vxlan vni 1{{ VLAN_ID }}
+set vlans V{{ VLAN_ID }} l3-interface irb.{{ VLAN_ID }}

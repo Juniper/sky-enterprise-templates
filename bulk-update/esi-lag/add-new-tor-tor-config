@@ -1,0 +1,12 @@
+set interfaces ae1 aggregated-ether-options lacp active
+set interfaces ae1 aggregated-ether-options lacp periodic fast
+ set interfaces ae1 aggregated-ether-options link-speed mixed
+set interfaces ae1 unit 0 family ethernet-switching interface-mode trunk
+set interfaces ae1 unit 0 family ethernet-switching vlan members all
+set interfaces ae1 unit 0 family ethernet-switching storm-control default
+delete interfaces {{ PHY_INT1 }}
+set interfaces {{ PHY_INT1 }} ether-options 802.3ad ae1
+set interfaces {{ PHY_INT1 }} description {{ Spine1_Hostname }}
+delete interfaces {{ PHY_INT2 }}
+set interfaces {{ PHY_INT2 }} ether-options 802.3ad ae1
+set interfaces {{ PHY_INT2 }} description {{ Spine2_Hostname }}

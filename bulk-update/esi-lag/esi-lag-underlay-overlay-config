@@ -1,0 +1,44 @@
+set protocols bgp hold-time 10
+set protocols bgp log-updown
+set protocols bgp graceful-restart restart-time 30
+set protocols bgp group UNDERLAY type external
+set protocols bgp group UNDERLAY description "Connection to EBGP UNDERLAY"
+set protocols bgp group UNDERLAY import UNDERLAY-IMPORT
+set protocols bgp group UNDERLAY family inet unicast
+set protocols bgp group UNDERLAY export UNDERLAY-EXPORT
+set protocols bgp group UNDERLAY local-as {{ LOCAL_AS }}
+set protocols bgp group UNDERLAY multipath multiple-as
+set protocols bgp group UNDERLAY bfd-liveness-detection minimum-interval 1000
+set protocols bgp group UNDERLAY bfd-liveness-detection multiplier 3
+set protocols bgp group UNDERLAY neighbor {{ PEERLINK_REMOTE_IP }} peer-as {{ PEER_AS }}
+set protocols bgp group OVERLAY type internal
+set protocols bgp group OVERLAY local-address {{ LOCAL_LOOPBACK }}
+set protocols bgp group OVERLAY family evpn signaling
+set protocols bgp group OVERLAY local-as {{ OVERLAY_AS }}
+set protocols bgp group OVERLAY multipath
+set protocols bgp group OVERLAY neighbor {{ REMOTE_LOOPBACK }}
+set protocols evpn encapsulation vxlan
+set protocols evpn multicast-mode ingress-replication
+set protocols evpn default-gateway do-not-advertise
+set protocols evpn extended-vni-list all
+set protocols evpn no-core-isolation
+set protocols lldp interface all
+set protocols lldp-med interface all
+set switch-options vtep-source-interface lo0.0
+set switch-options route-distinguisher {{ LOCAL_LOOPBACK }}:1
+set switch-options vrf-target target:{{ OVERLAY_AS }}:1111
+set switch-options vrf-target auto
+set interfaces lo0 unit 0 family inet address {{ LOCAL_LOOPBACK }}/32
+set chassis aggregated-devices ethernet device-count 20
+set policy-options policy-statement ECMP-POLICY then load-balance per-packet
+set policy-options policy-statement UNDERLAY-EXPORT term LOOPBACK from route-filter {{ LOCAL_LOOPBACK }}/24 orlonger
+set policy-options policy-statement UNDERLAY-EXPORT term LOOPBACK then accept
+set policy-options policy-statement UNDERLAY-IMPORT term LOOPBACK from route-filter {{ LOCAL_LOOPBACK }}/24 orlonger
+set policy-options policy-statement UNDERLAY-IMPORT term LOOPBACK then accept
+set routing-options router-id {{ LOCAL_LOOPBACK }}
+set routing-options forwarding-table export ECMP-POLICY
+set routing-options forwarding-table ecmp-fast-reroute
+set interfaces {{ PEERLINK_LOCAL_INTERFACE }} description "* connected to {{ PEER_SPINE_HOSTNAME }}"
+set interfaces {{ PEERLINK_LOCAL_INTERFACE }} traps
+set interfaces {{ PEERLINK_LOCAL_INTERFACE }} mtu 9192
+set interfaces {{ PEERLINK_LOCAL_INTERFACE }} unit 0 family inet address {{ PEERLINK_LOCAL_IP }}/30
