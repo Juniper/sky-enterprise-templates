@@ -1,0 +1,71 @@
+## JunOS Config
+## Merge
+## A bulk update template for; adding a new customer to a MTFW deployed firewall.
+## This uses port ge-0/0/1 as a tagged port for customer-trust customer-untrust.
+        routing-instances {
+            {{tenant}} {
+                instance-type virtual-router;
+                interface ge-0/0/1.{{trust-tag}};
+                interface ge-0/0/1.{{untrust-tag}};
+            }
+        }
+        interfaces {
+            ge-0/0/1 {
+                unit {{trust-tag}} {
+                    description {{tenant}}_trust;
+                    vlan-id {{trust-tag}};
+                    family inet;
+                }
+                unit {{untrust-tag}} {
+                    description {{tenant}}_untrust;
+                    vlan-id {{untrust-tag}};
+                    family inet;
+                }
+            }
+        }
+        security {
+            nat {
+                source {
+                    rule-set {{tenant}} {
+                        from zone {{tenant}}_trust;
+                        to zone {{tenant}}_untrust;
+                        rule {{tenant}}_rule {
+                            match {
+                                source-address 0.0.0.0/0;
+                            }
+                            then {
+                                source-nat {
+                                    interface;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            policies {
+                from-zone {{tenant}}_trust to-zone {{tenant}}_untrust {
+                    policy permit-web {
+                        match {
+                            source-address any;
+                            destination-address any;
+                            application [ junos-http junos-https junos-dns-udp ];
+                        }
+                        then {
+                            permit;
+                        }
+                    }
+                }
+            }
+            zones {
+                security-zone {{tenant}}_trust {
+                    interfaces {
+                        ge-0/0/1.{{trust-tag}};
+                    }
+                }
+                security-zone {{tenant}}_untrust {
+                    interfaces {
+                        ge-0/0/1.{{untrust-tag}};
+                    }
+                }
+            }
+        }
