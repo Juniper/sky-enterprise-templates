@@ -1,0 +1,4 @@
+## JunOS set
+## replaces pre-provisioned VC memberX serial number with variable input
+delete virtual-chassis member {{member_number}}
+set virtual-chassis member {{member_number}} serial-number {{ serial_number}}
