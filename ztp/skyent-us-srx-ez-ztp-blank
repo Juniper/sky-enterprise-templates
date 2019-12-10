@@ -13,10 +13,6 @@
 <access delete="delete"/>
 <vlans delete="delete"/>
 
-
-
-####### REPLACE THIS LINE WITH XML CONFIG HERE #######
-
             <system>
                   <login>
                     <user>
@@ -64,6 +60,8 @@
                     </outbound-ssh>
                 </services>
             </system>
+
+####### REPLACE THIS LINE WITH XML CONFIG #######
 
 </configuration>
 </config>
