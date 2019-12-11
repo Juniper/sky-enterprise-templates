@@ -6,8 +6,7 @@
 
 To get started with Sky Enterprise you can take a look at this Juniper guide which outlines some core areas of Sky Enterprise and ZTP Templates:
 
-https://www.juniper.net/documentation/en_US/sky-enterprise/topics/topic-map/getting-started-guide.html#id-creating-a-ztp-
-template
+https://www.juniper.net/documentation/en_US/sky-enterprise/topics/topic-map/getting-started-guide.html#id-creating-a-ztp-template
 
 ### Initial Template Definition.
 
