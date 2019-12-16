@@ -1,0 +1,39 @@
+## JunOS set
+## Creates two Wlan Interfaces
+## Please change the SSID key; juniper1
+
+## Interfaces
+set interfaces wl-2/0/0 vlan-tagging
+set interfaces wl-2/0/0 unit {{vlan-number-1}} vlan-id {{vlan-number-1}}
+set interfaces wl-2/0/0 unit {{vlan-number-1}} family inet address {{vlan-number-1-ip-address}}
+set interfaces wl-2/0/0 unit {{vlan-number-2}} vlan-id {{vlan-number-2}}
+set interfaces wl-2/0/0 unit {{vlan-number-2}} family inet address {{vlan-number-2-ip-address}}
+
+## Wlan
+set wlan access-point OFFICE interface wl-2/0/0 
+set wlan access-point OFFICE access-point-options country {{Country_Code}}
+set wlan access-point OFFICE radio 2 radio-options mode gn
+set wlan access-point OFFICE radio 2 radio-options channel bandwidth 20
+set wlan access-point OFFICE radio 2 virtual-access-point 0 ssid {{SSID-1}}
+set wlan access-point OFFICE radio 2 virtual-access-point 0 vlan {{vlan-number-1}}
+set wlan access-point OFFICE radio 2 virtual-access-point 0 security wpa-personal wpa-version v2
+set wlan access-point OFFICE radio 2 virtual-access-point 0 security wpa-personal key "$9$GXjkPFnCBIc5QIcylLXUjHq5Q"
+set wlan access-point OFFICE radio 2 virtual-access-point 1 ssid {{SSID-2}}
+set wlan access-point OFFICE radio 2 virtual-access-point 1 vlan {{vlan-number-2}}
+set wlan access-point OFFICE radio 2 virtual-access-point 1 security wpa-personal wpa-version v2
+set wlan access-point OFFICE radio 2 virtual-access-point 1 security wpa-personal key "$9$GXjkPFnCBIc5QIcylLXUjHq5Q"
+set wlan access-point OFFICE radio 1 radio-options mode acn
+set wlan access-point OFFICE radio 1 radio-options channel bandwidth 40
+set wlan access-point OFFICE radio 1 virtual-access-point 0 ssid {{SSID-1}}
+set wlan access-point OFFICE radio 1 virtual-access-point 0 vlan {{vlan-number-1}}
+set wlan access-point OFFICE radio 1 virtual-access-point 0 security wpa-personal wpa-version v2
+set wlan access-point OFFICE radio 1 virtual-access-point 0 security wpa-personal key "$9$GXjkPFnCBIc5QIcylLXUjHq5Q"
+set wlan access-point OFFICE radio 1 virtual-access-point 0 security wpa-personal key-type ascii
+set wlan access-point OFFICE radio 1 virtual-access-point 1 ssid {{SSID-2}}
+set wlan access-point OFFICE radio 1 virtual-access-point 1 vlan {{vlan-number-2}}
+set wlan access-point OFFICE radio 1 virtual-access-point 1 security wpa-personal wpa-version v2
+set wlan access-point OFFICE radio 1 virtual-access-point 1 security wpa-personal key "$9$GXjkPFnCBIc5QIcylLXUjHq5Q"
+
+## Security Zones
+set security zones security-zone trust interfaces wl-2/0/0.{{vlan-number-1}}
+set security zones security-zone trust interfaces wl-2/0/0.{{vlan-number-2}}
