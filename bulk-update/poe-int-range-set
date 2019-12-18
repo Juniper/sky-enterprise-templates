@@ -1,0 +1,11 @@
+## bulk update set
+
+delete interfaces {{interface_1}}
+delete interfaces {{interface_2}}
+set interfaces interface-range {{range_name}} member {{interface_1}}
+set interfaces interface-range {{range_name}} member {{interface_2}}
+set interfaces interface-range {{range_name}} description {{range_description}}
+set interfaces interface-range {{range_name}} unit 0 family ethernet-switching port-mode access
+set interfaces interface-range {{range_name}} unit 0 family ethernet-switching vlan members {{access_vlan}}
+set poe interface {{range_name}} priority {{poe_priority-high-low}}
+set poe interface {{range_name}} maximum-power {{max_power}}
