@@ -1,4 +1,5 @@
-## bulk update set
+## JunOS set
+## Creates interface range with two interfaces and poe
 
 delete interfaces {{interface_1}}
 delete interfaces {{interface_2}}
