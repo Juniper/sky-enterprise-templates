@@ -1,0 +1,14 @@
+## JunOS set
+## Creates interface range with two trunk interfaces and poe
+
+delete interfaces {{interface_1}}
+delete interfaces {{interface_2}}
+set interfaces interface-range {{range_name}} member {{interface_1}}
+set interfaces interface-range {{range_name}} member {{interface_2}}
+set interfaces interface-range {{range_name}} description {{range_description}}
+set interfaces interface-range {{range_name}} unit 0 family ethernet-switching port-mode trunk
+set interfaces interface-range {{range_name}} unit 0 family ethernet-switching native-vlan-id {{native_vlan_id}}
+set interfaces interface-range {{range_name}} unit 0 family ethernet-switching vlan members {{trunk_vlan}}
+set interfaces interface-range {{range_name}} unit 0 family ethernet-switching vlan members {{trunk_vlan}}
+set poe interface {{range_name}} priority {{poe_priority-high-low}}
+set poe interface {{range_name}} maximum-power {{max_power}}
