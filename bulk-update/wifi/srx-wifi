@@ -1,0 +1,286 @@
+# SRX WLAN Template
+
+The following template works from a factory default state. It replaces some elements from the factory default config, see comments inline
+
+## Config
+
+system {
+    services {
+        delete: dhcp-local-server; ## delete default dhcp config
+        dhcp-local-server {
+            group jdhcp-group {
+                interface wl-2/0/0.{{ GUEST_VLAN_ID }};
+                interface wl-2/0/0.{{ TRUST_VLAN_ID }};
+                interface irb.{{ TRUST_VLAN_ID }};
+            }
+        }
+    }
+}
+security {
+    nat {
+        source {
+            rule-set trust-to-untrust {
+                from zone [ guest trust ];
+                to zone untrust;
+                rule source-nat-rule {
+                    match {
+                        source-address 0.0.0.0/0;
+                    }
+                    then {
+                        source-nat {
+                            interface;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    policies {
+        from-zone trust to-zone trust {
+            policy trust-to-trust {
+                match {
+                    source-address any;
+                    destination-address any;
+                    application any;
+                }
+                then {
+                    permit;
+                }
+            }
+        }
+        from-zone trust to-zone untrust {
+            policy trust-to-untrust {
+                match {
+                    source-address any;
+                    destination-address any;
+                    application any;
+                }
+                then {
+                    permit;
+                    log {
+                        session-close;
+                    }
+                }
+            }
+        }
+        from-zone guest to-zone untrust {
+            policy guest-to-untrust {
+                match {
+                    source-address any;
+                    destination-address any;
+                    application any;
+                }
+                then {
+                    permit;
+                    log {
+                        session-close;
+                    }
+                }
+            }
+        }
+    }
+    zones {
+        security-zone trust {
+            host-inbound-traffic {
+                system-services {
+                    all;
+                }
+                protocols {
+                    all;
+                }
+            }
+            interfaces {
+                delete: irb.0; ## delete the default trust interfaces
+                delete: wl-2/0/0.0;
+                irb.{{ TRUST_VLAN_ID }};
+                wl-2/0/0.{{ TRUST_VLAN_ID }};
+            }
+        }
+        security-zone untrust {
+            interfaces {
+                {{ WAN_INTERFACE }} {
+                    host-inbound-traffic {
+                        system-services {
+                            dhcp;
+                            tftp;
+                        }
+                    }
+                }
+            }
+            application-tracking;
+        }
+        security-zone guest {
+            interfaces {
+                wl-2/0/0.{{ GUEST_VLAN_ID }} {
+                    host-inbound-traffic {
+                        system-services {
+                            ping;
+                            dhcp;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+interfaces {
+    delete: wl-2/0/0; ## delete default wl-2/0/0 config
+    wl-2/0/0 {
+        vlan-tagging;
+        unit {{ TRUSTED_VLAN_ID }} {
+            description "Trusted WLAN";
+            vlan-id {{ TRUSTED_VLAN_ID }};
+            family inet {
+                unnumbered-address irb.{{ TRUST_VLAN_ID }};
+            }
+        }
+        unit {{ GUEST_VLAN_ID }} {
+            description "Guest WLAN";
+            vlan-id {{ GUEST_VLAN_ID }};
+            family inet {
+                address {{ GUEST_SUBNET }}.1/24;
+            }
+        }
+    }
+    delete: irb; ## delete default irb config
+    irb {
+        vlan-tagging;
+        unit {{ TRUSTED_VLAN_ID }} {
+            description "Trusted LAN";
+            vlan-id {{ TRUSTED_VLAN_ID }};
+            family inet {
+                address {{ TRUSTED_SUBNET }}.1/24;
+            }
+        }
+    }
+}
+access {
+    delete: address-assignment; ## delete default access address-assignment config
+    address-assignment {
+        pool trustedDHCPPool {
+            family inet {
+                network {{ TRUSTED_SUBNET }}.0/24;
+                range trustedRange {
+                    low {{ TRUSTED_SUBNET }}.2;
+                    high {{ TRUSTED_SUBNET }}.254;
+                }
+                dhcp-attributes {
+                    name-server {
+                        8.8.8.8;
+                        1.1.1.1;
+                    }
+                    router {
+                        {{ TRUSTED_SUBNET }}.1;
+                    }
+                }
+            }
+        }
+        pool guestDHCPPool {
+            family inet {
+                network {{ GUEST_SUBNET }}.0/24;
+                range guestRange {
+                    low {{ GUEST_SUBNET }}.2;
+                    high {{ GUEST_SUBNET }}.254;
+                }
+                dhcp-attributes {
+                    name-server {
+                        1.1.1.1;
+                        8.8.8.8;
+                    }
+                    router {
+                        {{ GUEST_SUBNET }}.1;
+                    }
+                }
+            }
+        }
+    }
+}
+vlans {
+    vlan-guest {
+        vlan-id {{ GUEST_VLAN_ID }};
+    }
+    vlan-trust {
+        vlan-id 100;
+        l3-interface irb.{{ TRUSTED_VLAN_ID }};
+    }
+}
+delete: wlan; ## delete default wlan config
+wlan {
+    access-point {{ SRX_WAP_NAME }} {
+        interface wl-2/0/0;
+        access-point-options {
+            country {
+                {{ COUNTRY }};
+            }
+        }
+        radio 1 {
+            radio-options {
+                mode acn;
+                channel {
+                    bandwidth 40;
+                }
+            }
+            virtual-access-point 1 {
+                ssid {{ TRUSTED_WLAN_SSID }};
+                vlan {{ TRUSTED_VLAN_ID }};
+                security {
+                    wpa-personal {
+                        key {{ TRUSTED_WLAN_KEY }};
+                    }
+                }
+            }
+            virtual-access-point 2 {
+                ssid {{ GUEST_WLAN_SSID }};
+                vlan {{ GUEST_VLAN_ID }};
+                security {
+                    wpa-personal {
+                        key {{ GUEST_WLAN_KEY }};
+                    }
+                }
+            }
+        }
+        radio 2 {
+            radio-options {
+                mode gn;
+                channel {
+                    bandwidth 20;
+                }
+            }
+            virtual-access-point 1 {
+                ssid {{ TRUSTED_WLAN_SSID }};
+                vlan {{ TRUSTED_VLAN_ID }};
+                security {
+                    wpa-personal {
+                        key {{ TRUSTED_WLAN_KEY }};
+                    }
+                }
+            }
+            virtual-access-point 2 {
+                ssid {{ GUEST_WLAN_SSID }};
+                vlan {{ GUEST_VLAN_ID }};
+                security {
+                    wpa-personal {
+                        key {{ GUEST_WLAN_KEY }};
+                    }
+                }
+            }
+        }
+    }
+}
+
+## Example Variables
+
+{
+  "COUNTRY": "GB",
+  "GUEST_SUBNET": "192.168.30",
+  "GUEST_VLAN_ID": "200",
+  "GUEST_WLAN_KEY": "8jPZ6B475c7sJFtghNm59HRE",
+  "GUEST_WLAN_SSID": "GUEST_NET",
+  "SRX_WAP_NAME": "SRXWAP",
+  "TRUST_VLAN_ID": "100",
+  "TRUSTED_SUBNET": "192.168.20",
+  "TRUSTED_VLAN_ID": "100",
+  "TRUSTED_WLAN_KEY": "Em5He5dMaPmJPcpXjZCF7cyX",
+  "TRUSTED_WLAN_SSID": "TRUSTWLAN",
+  "WAN_INTERFACE": "ge-0/0/0.0"
+}
