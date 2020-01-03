@@ -4,7 +4,7 @@ Using the new WiFi mPIM for SRX https://www.juniper.net/documentation/en_US/rele
 
 ## Templates
 
-* 
+* srx-wifi
 
-* 
+* srx-wifi-variables-set
 
