@@ -1,0 +1,105 @@
+<device xmlns="http://juniper.net/zerotouch-bootstrap-server">
+    <unique-id>{{ serial }}</unique-id>
+    <configuration>
+        <config>
+            <ucpe>
+                <jdm>
+                    <configuration>
+                        <system>
+                            <host-name>{{ hostname }}-jdm</host-name>
+                            <memory>
+                                <hugepages>
+                                    <page-size>
+                                        <name>1024</name>
+                                        <page-count>8</page-count>
+                                    </page-size>
+                                </hugepages>
+                            </memory>
+                            <root-authentication>
+                                <encrypted-password>$6$vhTDT$bOpl9bBq5MKKWC1jY7siczd4fEMf4/xjUy.JvqXE9ZOsI.E5xdwquwEAVkKW.Xap101hBhKqcOwAscH/g8pzI1</encrypted-password>
+                            </root-authentication>
+                            <login>
+                                <user>
+                                    <name>{{ ztp_username }}</name>
+                                    <class>super-user</class>
+                                    <authentication>
+                                        <encrypted-password>{{ ztp_password }}</encrypted-password>
+                                    </authentication>
+                                </user>
+                            </login>
+                            <services>
+                                <ssh>
+                                    <protocol-version>v2</protocol-version>
+                                </ssh>
+                                <netconf>
+                                    <ssh>
+                                    </ssh>
+                                    <rfc-compliant/>
+                                </netconf>
+                                <enhanced-orchestration/>
+                                <ipsec-nm/>
+                                <outbound-ssh>
+                                    <client>
+                                        <name>skyenterprise-ncd01</name>
+                                        <device-id>{{ ztp_host_id }}</device-id>
+                                        <secret>{{ ztp_secret }}</secret>
+                                        <keep-alive>
+                                            <retry>3</retry>
+                                            <timeout>5</timeout>
+                                        </keep-alive>
+                                        <services>netconf</services>
+                                        <servers>
+                                            <name>skyent-ncd01.juniper.net</name>
+                                            <port>4087</port>
+                                            <retry>1000</retry>
+                                            <timeout>60</timeout>
+                                        </servers>
+                                    </client>
+                                    <client>
+                                        <name>skyenterprise-ncd02</name>
+                                        <device-id>{{ ztp_host_id }}</device-id>
+                                        <secret>{{ ztp_secret }}</secret>
+                                        <keep-alive>
+                                            <retry>3</retry>
+                                            <timeout>5</timeout>
+                                        </keep-alive>
+                                        <services>netconf</services>
+                                        <servers>
+                                            <name>skyent-ncd02.juniper.net</name>
+                                            <port>4087</port>
+                                            <retry>1000</retry>
+                                            <timeout>60</timeout>
+                                        </servers>
+                                    </client>
+                                </outbound-ssh>
+                            </services>
+                        </system>
+                        <interfaces delete="delete"/>
+                        <interfaces>
+                            <interface>
+                                <name>jsxe0</name>
+                                <vlan-tagging/>
+                                <unit>
+                                    <name>1</name>
+                                    <vlan-id>1</vlan-id>
+                                    <family>
+                                        <inet>
+                                            <dhcp>
+                                            </dhcp>
+                                        </inet>
+                                    </family>
+                                </unit>
+                            </interface>
+                        </interfaces>
+                    </configuration>
+                </jdm>
+                <jvm>
+                    <configuration>
+                        <host-name>{{ hostname }}-jvm</host-name>
+                    </configuration>
+                </jvm>
+            </ucpe>
+            <signature/>
+        </config>
+    </configuration>
+</device>
