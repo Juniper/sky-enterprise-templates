@@ -1,6 +1,5 @@
 set protocols bgp hold-time 10
 set protocols bgp log-updown
-set protocols bgp graceful-restart restart-time 30
 set protocols bgp group UNDERLAY type external
 set protocols bgp group UNDERLAY description "Connection to EBGP UNDERLAY"
 set protocols bgp group UNDERLAY import UNDERLAY-IMPORT
