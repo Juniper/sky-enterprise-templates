@@ -8,5 +8,4 @@ set interfaces {{ LAG_ID }} aggregated-ether-options lacp admin-key {{ SYS_ID }}
 set interfaces {{ LAG_ID }} aggregated-ether-options link-speed mixed 
 set interfaces {{ LAG_ID }} unit 0 family ethernet-switching interface-mode trunk
 set interfaces {{ LAG_ID }} unit 0 family ethernet-switching vlan members all
-set interfaces {{ LAG_ID }} unit 0 family ethernet-switching storm-control default
 set interfaces {{ PHY_INT }} ether-options 802.3ad {{ LAG_ID }}
