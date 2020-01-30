@@ -30,6 +30,7 @@
                             <services>
                                 <ssh>
                                     <protocol-version>v2</protocol-version>
+                                    <root-login>allow</root-login>
                                 </ssh>
                                 <netconf>
                                     <ssh>
