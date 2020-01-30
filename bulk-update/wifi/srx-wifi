@@ -89,9 +89,8 @@ security {
                     all;
                 }
             }
+            delete: interfaces; ## delete the default trust interfaces
             interfaces {
-                delete: irb.0; ## delete the default trust interfaces
-                delete: wl-2/0/0.0;
                 irb.{{ TRUSTED_VLAN_ID }};
                 wl-2/0/0.{{ TRUSTED_VLAN_ID }};
             }
