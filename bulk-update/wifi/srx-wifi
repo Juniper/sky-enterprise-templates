@@ -10,8 +10,8 @@ system {
         dhcp-local-server {
             group jdhcp-group {
                 interface wl-2/0/0.{{ GUEST_VLAN_ID }};
-                interface wl-2/0/0.{{ TRUST_VLAN_ID }};
-                interface irb.{{ TRUST_VLAN_ID }};
+                interface wl-2/0/0.{{ TRUSTED_VLAN_ID }};
+                interface irb.{{ TRUSTED_VLAN_ID }};
             }
         }
     }
@@ -92,8 +92,8 @@ security {
             interfaces {
                 delete: irb.0; ## delete the default trust interfaces
                 delete: wl-2/0/0.0;
-                irb.{{ TRUST_VLAN_ID }};
-                wl-2/0/0.{{ TRUST_VLAN_ID }};
+                irb.{{ TRUSTED_VLAN_ID }};
+                wl-2/0/0.{{ TRUSTED_VLAN_ID }};
             }
         }
         security-zone untrust {
@@ -131,7 +131,7 @@ interfaces {
             description "Trusted WLAN";
             vlan-id {{ TRUSTED_VLAN_ID }};
             family inet {
-                unnumbered-address irb.{{ TRUST_VLAN_ID }};
+                unnumbered-address irb.{{ TRUSTED_VLAN_ID }};
             }
         }
         unit {{ GUEST_VLAN_ID }} {
@@ -277,7 +277,6 @@ wlan {
   "GUEST_WLAN_KEY": "8jPZ6B475c7sJFtghNm59HRE",
   "GUEST_WLAN_SSID": "GUEST_NET",
   "SRX_WAP_NAME": "SRXWAP",
-  "TRUST_VLAN_ID": "100",
   "TRUSTED_SUBNET": "192.168.20",
   "TRUSTED_VLAN_ID": "100",
   "TRUSTED_WLAN_KEY": "Em5He5dMaPmJPcpXjZCF7cyX",
