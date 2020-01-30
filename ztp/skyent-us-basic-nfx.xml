@@ -4,7 +4,7 @@
         <config>
             <ucpe>
                 <jdm>
-                    <configuration>
+                    <configuration operation="merge">
                         <system>
                             <host-name>{{ hostname }}-jdm</host-name>
                             <memory>
@@ -94,8 +94,42 @@
                     </configuration>
                 </jdm>
                 <jvm>
-                    <configuration>
-                        <host-name>{{ hostname }}-jvm</host-name>
+                    <configuration operation="merge">
+                        <system>
+                            <host-name>{{ hostname }}-jvm</host-name>
+                            <root-authentication>
+                                <encrypted-password>$6$vhTDT$bOpl9bBq5MKKWC1jY7siczd4fEMf4/xjUy.JvqXE9ZOsI.E5xdwquwEAVkKW.Xap101hBhKqcOwAscH/g8pzI1</encrypted-password>
+                            </root-authentication>
+                            <name-server>
+                                <name>8.8.8.8</name>
+                            </name-server>
+                            <name-server>
+                                <name>8.8.4.4</name>
+                            </name-server>
+                            <services>
+                                <ssh>
+                                </ssh>
+                                <netconf>
+                                    <ssh>
+                                    </ssh>
+                                </netconf>
+                            </services>
+                        </system>
+                        <vlans delete="delete"/>
+                        <vlans>
+                            <vlan>
+                                <name>default</name>
+                                <vlan-id>1</vlan-id>
+                            </vlan>
+                            <vlan>
+                                <name>vlan-2</name>
+                                <vlan-id>2</vlan-id>
+                            </vlan>
+                            <vlan>
+                                <name>vlan-3</name>
+                                <vlan-id>3</vlan-id>
+                            </vlan>
+                        </vlans>
                     </configuration>
                 </jvm>
             </ucpe>
