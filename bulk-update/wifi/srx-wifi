@@ -97,7 +97,7 @@ security {
         }
         security-zone untrust {
             interfaces {
-                {{ WAN_INTERFACE }} {
+                replace: {{ WAN_INTERFACE }} {
                     host-inbound-traffic {
                         system-services {
                             dhcp;
@@ -123,7 +123,7 @@ security {
     }
 }
 interfaces {
-    delete: wl-2/0/0; ## delete default wl-2/0/0 config
+    #replace: wl-2/0/0; ## delete default wl-2/0/0 config
     wl-2/0/0 {
         vlan-tagging;
         unit {{ TRUSTED_VLAN_ID }} {
@@ -137,7 +137,7 @@ interfaces {
             description "Guest WLAN";
             vlan-id {{ GUEST_VLAN_ID }};
             family inet {
-                address {{ GUEST_SUBNET }}.1/24;
+                address 192.168.{{ GUEST_VLAN_ID }}.1/24;
             }
         }
     }
@@ -148,7 +148,7 @@ interfaces {
             description "Trusted LAN";
             vlan-id {{ TRUSTED_VLAN_ID }};
             family inet {
-                address {{ TRUSTED_SUBNET }}.1/24;
+                address 192.168.{{ TRUSTED_VLAN_ID }}.1/24;
             }
         }
     }
@@ -158,10 +158,10 @@ access {
     address-assignment {
         pool trustedDHCPPool {
             family inet {
-                network {{ TRUSTED_SUBNET }}.0/24;
+                network 192.168.{{ TRUSTED_VLAN_ID }}.0/24;
                 range trustedRange {
-                    low {{ TRUSTED_SUBNET }}.2;
-                    high {{ TRUSTED_SUBNET }}.254;
+                    low 192.168.{{ TRUSTED_VLAN_ID }}.2;
+                    high 192.168.{{ TRUSTED_VLAN_ID }}.254;
                 }
                 dhcp-attributes {
                     name-server {
@@ -169,17 +169,17 @@ access {
                         1.1.1.1;
                     }
                     router {
-                        {{ TRUSTED_SUBNET }}.1;
+                        192.168.{{ TRUSTED_VLAN_ID }}.1;
                     }
                 }
             }
         }
         pool guestDHCPPool {
             family inet {
-                network {{ GUEST_SUBNET }}.0/24;
+                network 192.168.{{ GUEST_VLAN_ID }}.0/24;
                 range guestRange {
-                    low {{ GUEST_SUBNET }}.2;
-                    high {{ GUEST_SUBNET }}.254;
+                    low 192.168.{{ GUEST_VLAN_ID }}.2;
+                    high 192.168.{{ GUEST_VLAN_ID }}.254;
                 }
                 dhcp-attributes {
                     name-server {
@@ -187,7 +187,7 @@ access {
                         8.8.8.8;
                     }
                     router {
-                        {{ GUEST_SUBNET }}.1;
+                        192.168.{{ GUEST_VLAN_ID }}.1;
                     }
                 }
             }
@@ -203,7 +203,7 @@ vlans {
         l3-interface irb.{{ TRUSTED_VLAN_ID }};
     }
 }
-delete: wlan; ## delete default wlan config
+#replace: wlan; ## delete default wlan config
 wlan {
     access-point {{ SRX_WAP_NAME }} {
         interface wl-2/0/0;
@@ -271,12 +271,10 @@ wlan {
 
 {
   "COUNTRY": "GB",
-  "GUEST_SUBNET": "192.168.30",
   "GUEST_VLAN_ID": "200",
   "GUEST_WLAN_KEY": "8jPZ6B475c7sJFtghNm59HRE",
   "GUEST_WLAN_SSID": "GUEST_NET",
   "SRX_WAP_NAME": "SRXWAP",
-  "TRUSTED_SUBNET": "192.168.20",
   "TRUSTED_VLAN_ID": "100",
   "TRUSTED_WLAN_KEY": "Em5He5dMaPmJPcpXjZCF7cyX",
   "TRUSTED_WLAN_SSID": "TRUSTWLAN",
