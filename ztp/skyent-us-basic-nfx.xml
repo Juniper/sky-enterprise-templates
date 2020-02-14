@@ -97,6 +97,15 @@
                 <jvm>
                     <configuration operation="merge">
                         <system>
+                            <login>
+                                <user>
+                                    <name>{{ jvm_username }}</name>
+                                    <class>super-user</class>
+                                    <authentication>
+                                        <encrypted-password>{{ jvm_password }}</encrypted-password>
+                                    </authentication>
+                                </user>
+                            </login>
                             <host-name>{{ hostname }}-jvm</host-name>
                             <root-authentication>
                                 <encrypted-password>$6$vhTDT$bOpl9bBq5MKKWC1jY7siczd4fEMf4/xjUy.JvqXE9ZOsI.E5xdwquwEAVkKW.Xap101hBhKqcOwAscH/g8pzI1</encrypted-password>
@@ -109,18 +118,68 @@
                             </name-server>
                             <services>
                                 <ssh>
+                                    <root-login>allow</root-login>
                                 </ssh>
                                 <netconf>
                                     <ssh>
                                     </ssh>
                                 </netconf>
+                                <outbound-ssh>
+                                    <client>
+                                        <name>skyenterprise-ncd01</name>
+                                        <device-id>{{ jvm_host_id }}</device-id>
+                                        <secret>{{ jvm_secret }}</secret>
+                                        <keep-alive>
+                                            <retry>3</retry>
+                                            <timeout>5</timeout>
+                                        </keep-alive>
+                                        <services>netconf</services>
+                                        <servers>
+                                            <name>skyent-ncd01.juniper.net</name>
+                                            <port>4087</port>
+                                            <retry>1000</retry>
+                                            <timeout>60</timeout>
+                                        </servers>
+                                    </client>
+                                    <client>
+                                        <name>skyenterprise-ncd02</name>
+                                        <device-id>{{ jvm_host_id }}</device-id>
+                                        <secret>{{ jvm_secret }}</secret>
+                                        <keep-alive>
+                                            <retry>3</retry>
+                                            <timeout>5</timeout>
+                                        </keep-alive>
+                                        <services>netconf</services>
+                                        <servers>
+                                            <name>skyent-ncd02.juniper.net</name>
+                                            <port>4087</port>
+                                            <retry>1000</retry>
+                                            <timeout>60</timeout>
+                                        </servers>
+                                    </client>
+                                </outbound-ssh>
                             </services>
                         </system>
                         <vlans delete="delete"/>
+                        <interfaces>
+                            <interface>
+                                <name>irb</name>
+                                <unit>
+                                    <name>1</name>
+                                    <family>
+                                        <inet>
+                                            <dhcp>
+                                            </dhcp>
+                                        </inet>
+                                    </family>
+                                </unit>
+                            </interface>
+                        </interfaces>
                         <vlans>
                             <vlan>
                                 <name>default</name>
                                 <vlan-id>1</vlan-id>
+                                <l3-interface>irb.1</l3-interface>
                             </vlan>
                             <vlan>
                                 <name>vlan-2</name>
