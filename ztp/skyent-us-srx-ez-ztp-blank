@@ -6,13 +6,14 @@
 <config>
 <configuration>
 
-<system delete="delete"/>
+<system>
+    <autoinstallation delete="delete"/>
+</system>
 <security delete="delete"/>
 <interfaces delete="delete"/>
 <protocols delete="delete"/>
 <access delete="delete"/>
 <vlans delete="delete"/>
-
             <system>
                   <login>
                     <user>
