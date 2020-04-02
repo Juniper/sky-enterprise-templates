@@ -1,70 +1,67 @@
 ## ZTP XML template with Sky Enterprise connector
 
 <device xmlns="http://juniper.net/zerotouch-bootstrap-server">
-<unique-id>{{ serial }}</unique-id>
-<configuration>
-<config>
-<configuration>
+    <unique-id>{{ serial }}</unique-id>
+    <configuration>
+        <config>
+            <configuration>
+                <security delete="delete"/>
+                <interfaces delete="delete"/>
+                <protocols delete="delete"/>
+                <access delete="delete"/>
+                <vlans delete="delete"/>
+                <system>
+                    <autoinstallation delete="delete"/>
+                    <login>
+                        <user>
+                            <name>{{ ztp_username }}</name>
+                            <class>super-user</class>
+                            <authentication>
+                                <encrypted-password>{{ ztp_password }}</encrypted-password>
+                            </authentication>
+                        </user>
+                    </login>
+                    <services>
+                        <outbound-ssh>
+                            <client>
+                                <name>skyenterprise-ncd01</name>
+                                <device-id>{{ ztp_host_id }}</device-id>
+                                <secret>{{ ztp_secret }}</secret>
+                                <keep-alive>
+                                    <retry>3</retry>
+                                    <timeout>5</timeout>
+                                </keep-alive>
+                                <services>netconf</services>
+                                <servers>
+                                    <name>skyent-ncd01.juniper.net</name>
+                                    <port>4087</port>
+                                    <retry>1000</retry>
+                                    <timeout>60</timeout>
+                                </servers>
+                            </client>
+                            <client>
+                                <name>skyenterprise-ncd02</name>
+                                <device-id>{{ ztp_host_id }}</device-id>
+                                <secret>{{ ztp_secret }}</secret>
+                                <keep-alive>
+                                    <retry>3</retry>
+                                    <timeout>5</timeout>
+                                </keep-alive>
+                                <services>netconf</services>
+                                <servers>
+                                    <name>skyent-ncd02.juniper.net</name>
+                                    <port>4087</port>
+                                    <retry>1000</retry>
+                                    <timeout>60</timeout>
+                                </servers>
+                            </client>
+                        </outbound-ssh>
+                    </services>
+                </system>
 
-<system>
-    <autoinstallation delete="delete"/>
-</system>
-<security delete="delete"/>
-<interfaces delete="delete"/>
-<protocols delete="delete"/>
-<access delete="delete"/>
-<vlans delete="delete"/>
-            <system>
-                  <login>
-                    <user>
-                      <name>{{ ztp_username }}</name>
-                      <class>super-user</class>
-                      <authentication>
-                        <encrypted-password>{{ ztp_password }}</encrypted-password>
-                      </authentication>
-                    </user>
-                  </login>
-                <services>
-                    <outbound-ssh>
-                      <client>
-                        <name>skyenterprise-ncd01</name>
-                        <device-id>{{ ztp_host_id }}</device-id>
-                        <secret>{{ ztp_secret }}</secret>
-                        <keep-alive>
-                          <retry>3</retry>
-                          <timeout>5</timeout>
-                        </keep-alive>
-                        <services>netconf</services>
-                        <servers>
-                          <name>skyent-ncd01.juniper.net</name>
-                          <port>4087</port>
-                          <retry>1000</retry>
-                          <timeout>60</timeout>
-                        </servers>
-                      </client>
-                      <client>
-                        <name>skyenterprise-ncd02</name>
-                        <device-id>{{ ztp_host_id }}</device-id>
-                        <secret>{{ ztp_secret }}</secret>
-                        <keep-alive>
-                          <retry>3</retry>
-                          <timeout>5</timeout>
-                        </keep-alive>
-                        <services>netconf</services>
-                        <servers>
-                          <name>skyent-ncd02.juniper.net</name>
-                          <port>4087</port>
-                          <retry>1000</retry>
-                          <timeout>60</timeout>
-                        </servers>
-                      </client>
-                    </outbound-ssh>
-                </services>
-            </system>
+                <!-- ###### REPLACE THIS LINE WITH XML CONFIG ####### -->
 
-####### REPLACE THIS LINE WITH XML CONFIG #######
-
-</configuration>
-</config>
-</configuration>
+            </configuration>
+        </config>
+    </configuration>
 </device>
