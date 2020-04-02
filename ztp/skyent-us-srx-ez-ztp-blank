@@ -1,4 +1,4 @@
-## ZTP XML template with Sky Enterprise connector
+<!-- ## ZTP XML template with Sky Enterprise connector ## -->
 
 <device xmlns="http://juniper.net/zerotouch-bootstrap-server">
     <unique-id>{{ serial }}</unique-id>
