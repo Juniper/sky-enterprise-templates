@@ -135,6 +135,153 @@ This mimics what ztp/phone-home does, as seen in these sample ZTP logs from an S
      Feb  2 11:45:40 C(SM-phcd_platform_junos_commit): CMD /usr/sbin/cli -c "op url /etc/phone-home/phcd_commit.slax filename /var/tmp/phone-home/phcd_downloaded_cfg.xml action merge format xml"
 ```
 
+### ZTP Fails due to config error and you can' see why?
+
+Follow the steps from testing above and copy the XML to the device from <configuration> to </configuration> Then on the SRX open a local netconf session using:
+
+```
+root> junoscript interactive netconf
+```
+
+in the netconf session: 
+
+``` xml
+<rpc><load-configuration url="/var/tmp/config.xml" action="merge" format="xml" /></rpc>
+```
+
+This will provide some feedback, for example:
+
+``` xml
+<rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:junos="http://xml.juniper.net/junos/18.2R3/junos">
+<load-configuration-results>
+<rpc-error>
+<error-type>protocol</error-type>
+<error-tag>operation-failed</error-tag>
+<error-severity>error</error-severity>
+<error-message>syntax error</error-message>
+<error-info>
+<bad-element>name</bad-element>
+</error-info>
+</rpc-error>
+<rpc-error>
+<error-type>protocol</error-type>
+<error-tag>operation-failed</error-tag>
+<error-severity>error</error-severity>
+<error-message>syntax error</error-message>
+<error-info>
+<bad-element>name</bad-element>
+</error-info>
+</rpc-error>
+</load-configuration-results>
+</rpc-reply>
+```
+
+### If this doesn't indicate the details of the issue, exit netconf using ctrl-d and go back to configure mode:
+
+``` 
+<!-- session end at 2020-03-03 15:08:30 UTC -->
+root@% cli
+root> configure
+Entering configuration mode
+The configuration has been changed but not committed
+[edit]
+root#
+```
+
+from here:
+
+```
+root# show | display xml | no-more | last 
+```
+
+This may show the final bit of working config from the configuration loaded using the netconf session(into candidate).
+
+In this example the error is due to the following configuration, which at first glance seems ok and is valid XML:
+
+``` xml
+    <system-services>
+        <name>dhcp</name>
+        <name>ssh</name>
+    </system-services>
+```
+
+Following the steps above:
+
+```
+<rpc><load-configuration url="/var/tmp/config.xml" action="merge" format="xml" /></rpc>
+
+<!-- session end at 2020-03-03 15:08:30 UTC -->
+root@% cli
+root> configure
+Entering configuration mode
+
+root# show | display xml | no-more | last
+                    <security-zone>
+                        <name>Internet</name>
+                        <tcp-rst/>
+                        <screen>Internet-screen</screen>
+                        <interfaces>
+                            <name>ge-0/0/0.0</name>
+                            <host-inbound-traffic>
+                                <system-services>
+                                    <name>dhcp</name>
+                                </system-services>
+                            </host-inbound-traffic>
+                        </interfaces>
+                    </security-zone>
+                </zones>
+            </security>
+    </configuration>
+    <cli>
+        <banner>[edit]</banner>
+    </cli>
+</rpc-reply>
+```
+
+Comparing the original XML with the output shows the missing system services ssh section. To validate this and check the correct format:
+
+```
+root# show | display set | no-more | last 
+set security zones security-zone Internet interfaces ge-0/0/0.0 host-inbound-traffic system-services dhcp
+
+root# set security zones security-zone Internet interfaces ge-0/0/0.0 host-inbound-traffic system-services ssh
+
+root# show security zones security-zone Internet interfaces ge-0/0/0.0 host-inbound-traffic | display xml
+
+<rpc-reply xmlns:junos="http://xml.juniper.net/junos/18.2R3/junos">
+    <configuration junos:changed-seconds="1583250659" junos:changed-localtime="2020-03-03 15:50:59 UTC">
+            <security>
+                <zones>
+                    <security-zone>
+                        <name>Internet</name>
+                        <interfaces>
+                            <name>ge-0/0/0.0</name>
+                            <host-inbound-traffic>
+                                <system-services>
+                                    <name>dhcp</name>
+                                </system-services>
+                                <system-services>
+                                    <name>ssh</name>
+                                </system-services>
+                            </host-inbound-traffic>
+                        </interfaces>
+                    </security-zone>
+                </zones>
+            </security>
+    </configuration>
+```
+
+This illustrates how the XML should be formatted for this configuration, compared to
+
+```
+    <system-services>
+        <name>dhcp</name>
+        <name>ssh</name>
+    </system-services>
+```
+
+This is not an exhaustive guide but intended to help guide through creating more advanced XML templates.
+
 ### Software Upgrades via ZTP
 
 It is possible to upgrade the Junos version during the ZTP process. This is done by inserting the following XML into the header of the XML template. This requires the Junos image to be hosted on a server accessible to both the device and the Sky Enterprise ZTP Servers (for secure URL proxying)
