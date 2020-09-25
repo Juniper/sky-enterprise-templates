@@ -135,7 +135,7 @@ This mimics what ztp/phone-home does, as seen in these sample ZTP logs from an S
      Feb  2 11:45:40 C(SM-phcd_platform_junos_commit): CMD /usr/sbin/cli -c "op url /etc/phone-home/phcd_commit.slax filename /var/tmp/phone-home/phcd_downloaded_cfg.xml action merge format xml"
 ```
 
-### ZTP Fails due to config error and you can' see why?
+### ZTP Fails due to config error and you can't see why?
 
 Follow the steps from testing above and copy the XML to the device from <configuration> to </configuration> Then on the SRX open a local netconf session using:
 
