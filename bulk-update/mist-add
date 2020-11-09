@@ -1,0 +1,10 @@
+# Bulk update template to add the device to Mist
+# Create the device in Mist first and then use the details int he template
+set system services ssh protocol-version v2
+set system authentication-order password
+set system login user mist class super-user
+set system login user mist authentication encrypted-password {{mist_user_password}}
+set system services outbound-ssh client mist device-id {{mist_device_id}}
+set system services outbound-ssh client mist secret {{mist_secret}}
+set system services outbound-ssh client mist services netconf keep-alive retry 3 timeout 5
+set system services outbound-ssh client mist oc-term.mistsys.net port 2200 timeout 60 retry 1000
